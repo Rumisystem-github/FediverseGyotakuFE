@@ -36,10 +36,48 @@
 			.INSTANCE > .ARCHIVE_LIST{
 				padding: 10px;
 			}
+
+			/*-------------------------------------アーカイブ-------------------------------------*/
+			.INSTANCE_ARCHIVE{
+				background-color: white;
+
+				margin: 10px;
+
+				border-radius: 10px;
+
+				overflow: hidden;
+			}
+
+			.INSTANCE_ARCHIVE > .INFO{
+				padding: 10px;
+			}
+
+			.INSTANCE_ARCHIVE > .INFO{
+				display: flex;
+			}
+
+			.INSTANCE_ARCHIVE > .INFO > img{
+				width: 45px;
+				height: 45px;
+
+				margin-right: 10px;
+			}
+
+			.INSTANCE_ARCHIVE > .DESCRIPTION{
+				display: flex;
+
+				height: 500px;
+			}
+			.INSTANCE_ARCHIVE > .DESCRIPTION > *{
+				width: 50%;
+				height: 100%;
+
+				padding: 10px;
+			}
 		</STYLE>
 	</HEAD>
 	<BODY>
-		<DIV CLASS="INSTANCE">
+		<DIV CLASS="INSTANCE" ID="INSTANCE_ARCHIVE_LIST">
 			<DIV CLASS="INFO">
 				<DIV CLASS="HOST" ID="HOST_NAME"></DIV>
 				<DIV CLASS="ARCHIVE_COUNT"><SPAN ID="ARCHIVE_COUNT"></SPAN>件の魚拓があります</DIV>
@@ -47,17 +85,37 @@
 			<DIV CLASS="ARCHIVE_LIST" ID="ARCHIVE_LIST">
 			</DIV>
 		</DIV>
+		<DIV CLASS="INSTANCE_ARCHIVE" ID="INSTANCE_ARCHIVE">
+			<DIV CLASS="INFO" ID="INFO">
+				<IMG ID="ICON">
+				<DIV>
+					<DIV ID="NAME"></DIV>
+					<DIV ID="HOST"></DIV>
+				</DIV>
+			</DIV>
+			<DIV CLASS="DESCRIPTION">
+				<IFRAME SANDBOX="allow-scripts" ID="DESCRIPTION" STYLE="border: none;"></IFRAME>
+				<DIV>
+					<DIV><SPAN ID="REGIST_DATE"></SPAN>に魚拓</DIV>
+					<DIV><TEXTAREA ID="DUMP"></TEXTAREA></DIV>
+					<DIV>AP実装<SPAN ID="SOFTWARE_NAME"></SPAN>バージョン<SPAN ID="SOFTWARE_VERSION"></SPAN></DIV>
+				</DIV>
+			</DIV>
+		</DIV>
 	</BODY>
-	<SCRIPT>
+
+	<SCRIPT SRC="/Script/DateFormat.js"></SCRIPT>
+	<SCRIPT defer>
 		window.addEventListener("load", async (e)=>{
 			if (new URLSearchParams(window.location.search).get("HOST") != null) {
+				document.getElementById("INSTANCE_ARCHIVE").remove();
+
 				const host = new URLSearchParams(window.location.search).get("HOST");
 				let ajax = await fetch("/api/Instance?HOST=" + host);
 				const result = await ajax.json();
 				if (result.STATUS == false) return;
 
 				document.getElementById("HOST_NAME").innerText = result.INSTANCE.HOST;
-				//document.body.innerText = JSON.stringify(result.INSTANCE);
 
 				//アーカイブ一覧
 				let archive_list_ajax = await fetch("/api/Instance/Archive?ID=" + result.INSTANCE.ID);
@@ -67,30 +125,48 @@
 				document.getElementById("ARCHIVE_COUNT").innerText = archive_list_result.LIST.length;
 				for (let i = 0; i < archive_list_result.LIST.length; i++) {
 					const row = archive_list_result.LIST[i];
-					const date = new Date(row.REGIST_DATE);
-					let hours = date.getHours();
-					let am_pm = "午前";
-
-					if (hours > 12) {
-						am_pm = "午後";
-						hours = hours - 12;
-					}
 
 					let el = document.createElement("DIV");
 					let a = document.createElement("A");
 					a.href = `?ID=${row.ID}`
-					a.innerText = `${date.getFullYear()}年${date.getMonth()}月${date.getDate()}日 ${am_pm}${hours}時${date.getMinutes()}分${date.getSeconds()}秒`;
+					a.innerText = date_format(new Date(row.REGIST_DATE));
 					el.appendChild(a);
 
 					document.getElementById("ARCHIVE_LIST").appendChild(el);
 				}
 			} else if(new URLSearchParams(window.location.search).get("ID") != null) {
+				document.getElementById("INSTANCE_ARCHIVE_LIST").remove();
+
 				const archive_id = new URLSearchParams(window.location.search).get("ID");
 				let ajax = await fetch("/api/Instance/Archive?ARCHIVE=" + archive_id);
 				const result = await ajax.json();
 				if (result.STATUS == false) return;
+				const node_info = JSON.parse(result.ARCHIVE.DUMP);
 
-				document.body.innerText = JSON.stringify(result.ARCHIVE);
+				if (node_info.metadata.themeColor != null) {
+					document.getElementById("INFO").style.backgroundColor = node_info.metadata.themeColor;
+				}
+
+				document.getElementById("NAME").innerText = result.ARCHIVE.INSTANCE_NAME;
+				document.getElementById("HOST").innerText = result.ARCHIVE.HOST;
+
+				const description_html = `
+					<!DOCTYPE html>
+					<HTML>
+						<HEAD>
+							<TITLE>インスタンス説明</TITLE>
+						</HEAD>
+						<BODY>
+							${result.ARCHIVE.INSTANCE_DESCRIPTION}
+						</BODY>
+					</HTML>
+				`;
+
+				document.getElementById("DESCRIPTION").src = `data:text/html;charset=UTF-8;base64,${btoa(unescape(encodeURIComponent(description_html)))}`;
+				document.getElementById("REGIST_DATE").innerText = date_format(new Date(result.ARCHIVE.REGIST_DATE));
+				document.getElementById("DUMP").innerText = result.ARCHIVE.DUMP;
+				document.getElementById("SOFTWARE_NAME").innerText = result.ARCHIVE.SOFTWARE_NAME;
+				document.getElementById("SOFTWARE_VERSION").innerText = result.ARCHIVE.SOFTWARE_VERSION;
 			}
 		});
 	</SCRIPT>
