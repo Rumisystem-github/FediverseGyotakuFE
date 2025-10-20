@@ -8,13 +8,40 @@
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+
+		<STYLE>
+			body{
+				background-color: aliceblue;
+			}
+
+			.POST_LIST{
+				background-color: white;
+
+				margin: 10px;
+				padding: 10px;
+
+				border-radius: 10px;
+			}
+		</STYLE>
 	</HEAD>
 	<BODY>
+		<!--リスト-->
+		<DIV CLASS="POST_LIST" ID="ARCHIVE_LIST">
 
+		</DIV>
+
+		<!--アーカイブ-->
+		<DIV CLASS="ARCHIVE" ID="ARCHIVE">
+
+		</DIV>
 	</BODY>
-	<SCRIPT>
+
+	<SCRIPT SRC="/Script/DateFormat.js"></SCRIPT>
+	<SCRIPT defer>
 		window.addEventListener("load", async (e)=>{
 			if (new URLSearchParams(window.location.search).get("ID") != null) {
+				document.getElementById("ARCHIVE").remove();
+
 				const post_id = new URLSearchParams(window.location.search).get("ID");
 				let ajax = await fetch("/api/Post/Archive?ID=" + post_id);
 				const result = await ajax.json();
@@ -25,10 +52,12 @@
 					const row = result.LIST[i];
 					let el = document.createElement("A");
 					el.href = `?ARCHIVE=${row.ID}`
-					el.innerText = row.REGIST_DATE;
-					document.body.appendChild(el);
+					el.innerText = date_format(new Date(row.REGIST_DATE));
+					document.getElementById("ARCHIVE_LIST").appendChild(el);
 				}
 			} else if(new URLSearchParams(window.location.search).get("ARCHIVE") != null) {
+				document.getElementById("ARCHIVE_LIST").remove();
+
 				const archive_id = new URLSearchParams(window.location.search).get("ARCHIVE");
 				let ajax = await fetch("/api/Post/Archive?ARCHIVE=" + archive_id);
 				const result = await ajax.json();
