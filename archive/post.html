@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>Fediverse魚拓 | 投稿</TITLE>
+
+		<!--るみ鯖のデフォ-->
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/reset.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+	</HEAD>
+	<BODY>
+
+	</BODY>
+	<SCRIPT>
+		window.addEventListener("load", async (e)=>{
+			if (new URLSearchParams(window.location.search).get("ID") != null) {
+				const post_id = new URLSearchParams(window.location.search).get("ID");
+				let ajax = await fetch("/api/Post/Archive?ID=" + post_id);
+				const result = await ajax.json();
+				if (result.STATUS == false) return;
+
+				//アーカイブ一覧
+				for (let i = 0; i < result.LIST.length; i++) {
+					const row = result.LIST[i];
+					let el = document.createElement("A");
+					el.href = `?ARCHIVE=${row.ID}`
+					el.innerText = row.REGIST_DATE;
+					document.body.appendChild(el);
+				}
+			} else if(new URLSearchParams(window.location.search).get("ARCHIVE") != null) {
+				const archive_id = new URLSearchParams(window.location.search).get("ARCHIVE");
+				let ajax = await fetch("/api/Post/Archive?ARCHIVE=" + archive_id);
+				const result = await ajax.json();
+				if (result.STATUS == false) return;
+
+				document.body.innerText = JSON.stringify(result);
+			}
+		});
+	</SCRIPT>
+</HTML>

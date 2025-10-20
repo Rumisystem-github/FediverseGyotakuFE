@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>Fediverse魚拓</TITLE>
+
+		<!--るみ鯖のデフォ-->
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/reset.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+	</HEAD>
+	<BODY>
+		<CENTER>
+			<H1>Fediverse魚拓</H1>
+			「curl -H 'Accept: application/activity+json'」と同等のことをして取得し、アーカイブしています。<BR>
+			なので公開投稿でなければアーカイブできません。<BR>
+			さらに言えば、許可された人しかアーカイブ操作を行えません。<BR>
+			これは完全に個人的にアーカイブするために用意したものであり、悪意が有るわけでもないです。<BR>
+			<BR>
+
+			<DIV>
+				<FORM METHOD="GET" ACTION="/archive/instance.html">
+					<INPUT NAME="HOST" PLACEHOLDER="ussr.rumiserver.com"><BUTTON>インスタンスで検索</BUTTON>
+				</FORM>
+			</DIV>
+			<DIV>
+				<FORM METHOD="GET" ACTION="/archive/user.html">
+					<INPUT NAME="NAME" PLACEHOLDER="Rumisan@ussr.rumiserver.com"><BUTTON>ユーザーで検索</BUTTON>
+				</FORM>
+			</DIV>
+		</CENTER>
+	</BODY>
+</HTML>

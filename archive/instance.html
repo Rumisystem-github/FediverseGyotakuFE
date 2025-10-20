@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>Fediverse魚拓 | インスタンス</TITLE>
+
+		<!--るみ鯖のデフォ-->
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/reset.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+	</HEAD>
+	<BODY>
+
+	</BODY>
+	<SCRIPT>
+		window.addEventListener("load", async (e)=>{
+			if (new URLSearchParams(window.location.search).get("HOST") != null) {
+				const host = new URLSearchParams(window.location.search).get("HOST");
+				let ajax = await fetch("/api/Instance?HOST=" + host);
+				const result = await ajax.json();
+				if (result.STATUS == false) return;
+
+				document.body.innerText = JSON.stringify(result.INSTANCE);
+
+				//アーカイブ一覧
+				let archive_list_ajax = await fetch("/api/Instance/Archive?ID=" + result.INSTANCE.ID);
+				const archive_list_result = await archive_list_ajax.json();
+				if (archive_list_result.STATUS == false) return;
+				for (let i = 0; i < archive_list_result.LIST.length; i++) {
+					const row = archive_list_result.LIST[i];
+					let el = document.createElement("A");
+					el.href = `?ID=${row.ID}`
+					el.innerText = row.REGIST_DATE;
+					document.body.appendChild(el);
+				}
+			} else if(new URLSearchParams(window.location.search).get("ID") != null) {
+				const archive_id = new URLSearchParams(window.location.search).get("ID");
+				let ajax = await fetch("/api/Instance/Archive?ARCHIVE=" + archive_id);
+				const result = await ajax.json();
+				if (result.STATUS == false) return;
+
+				document.body.innerText = JSON.stringify(result.ARCHIVE);
+			}
+		});
+	</SCRIPT>
+</HTML>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>Fediverse魚拓 | ユーザー</TITLE>
+
+		<!--るみ鯖のデフォ-->
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/reset.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+	</HEAD>
+	<BODY>
+
+	</BODY>
+	<SCRIPT>
+		window.addEventListener("load", async (e)=>{
+			if (new URLSearchParams(window.location.search).get("NAME") != null) {
+				const name = new URLSearchParams(window.location.search).get("NAME");
+				const username = name.split("@")[0];
+				const host = name.split("@")[1];
+
+				let ajax = await fetch(`/api/User?NAME=${username}&HOST=${host}`);
+				const result = await ajax.json();
+				if (result.STATUS == false) return;
+
+				document.body.innerText = JSON.stringify(result.USER);
+				document.body.innerText += JSON.stringify(result.POST);
+
+				//アーカイブ一覧
+				let archive_list_ajax = await fetch("/api/User/Archive?ID=" + result.USER.ID);
+				const archive_list_result = await archive_list_ajax.json();
+				if (archive_list_result.STATUS == false) return;
+				for (let i = 0; i < archive_list_result.LIST.length; i++) {
+					const row = archive_list_result.LIST[i];
+					let el = document.createElement("A");
+					el.href = `?ID=${row.ID}`
+					el.innerText = row.REGIST_DATE;
+					document.body.appendChild(el);
+				}
+
+				//投稿一覧
+				for (let i = 0; i < result.POST.length; i++) {
+					const row = result.POST[i];
+					let el = document.createElement("A");
+					el.href = `post.html?ID=${row.ID}`
+					el.innerText = row.REGIST_DATE;
+					document.body.appendChild(el);
+				}
+			}
+		});
+	</SCRIPT>
+</HTML>

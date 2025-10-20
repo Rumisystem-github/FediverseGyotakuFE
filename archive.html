@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<HTML>
+	<HEAD>
+		<TITLE>Fediverse魚拓</TITLE>
+
+		<!--るみ鯖のデフォ-->
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/reset.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
+		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+	</HEAD>
+	<BODY>
+		<INPUT ID="IN">
+		<BUTTON onclick="archive();">アーカイブ</BUTTON>
+	</BODY>
+
+	<SCRIPT SRC="https://cdn.rumia.me/LIB/Login.js?V=LATEST" defer></SCRIPT>
+	<SCRIPT SRC="https://cdn.rumia.me/LIB/COOKIE.js?V=LATEST" defer></SCRIPT>
+	<SCRIPT defer>
+		let session = null;
+		let account_data = null;
+		let input = document.getElementById("IN");
+
+		window.addEventListener("load", async (e)=>{
+			session = ReadCOOKIE().SESSION;
+			if (session !== null) {
+				account_data = await LOGIN(session);
+				if (account_data === false) {
+					window.location.href = "/";
+				} else {
+					if (account_data.ID != "1") {
+						window.location.href = "/";
+					}
+				}
+			}
+		});
+
+		async function archive() {
+			let ajax = await fetch("/api/Archive", {
+				method: "POST",
+				headers: {
+					TOKEN: session
+				},
+				body: JSON.stringify({
+					url: input.value
+				})
+			});
+			const result = await ajax.json();
+			if (result.STATUS) {
+
+			} else {
+				alet("エラー");
+			}
+		}
+	</SCRIPT>
+</HTML>
