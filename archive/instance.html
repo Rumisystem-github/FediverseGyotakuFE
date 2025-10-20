@@ -8,9 +8,45 @@
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/font.css">
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/DEFAULT.css">
 		<LINK REL="stylesheet" HREF="https://cdn.rumia.me/CSS/icon.css">
+
+		<STYLE>
+			body{
+				background-color: aliceblue;
+			}
+
+			.INSTANCE{
+				background-color: white;
+
+				margin: 10px;
+
+				border-radius: 10px;
+
+				overflow: hidden;
+			}
+
+			.INSTANCE > .INFO{
+				padding: 10px;
+				background-color: rgb(200, 255, 236);
+			}
+
+			.INSTANCE > .INFO > .HOST{
+				font-size: 30px;
+			}
+
+			.INSTANCE > .ARCHIVE_LIST{
+				padding: 10px;
+			}
+		</STYLE>
 	</HEAD>
 	<BODY>
-
+		<DIV CLASS="INSTANCE">
+			<DIV CLASS="INFO">
+				<DIV CLASS="HOST" ID="HOST_NAME"></DIV>
+				<DIV CLASS="ARCHIVE_COUNT"><SPAN ID="ARCHIVE_COUNT"></SPAN>件の魚拓があります</DIV>
+			</DIV>
+			<DIV CLASS="ARCHIVE_LIST" ID="ARCHIVE_LIST">
+			</DIV>
+		</DIV>
 	</BODY>
 	<SCRIPT>
 		window.addEventListener("load", async (e)=>{
@@ -20,18 +56,33 @@
 				const result = await ajax.json();
 				if (result.STATUS == false) return;
 
-				document.body.innerText = JSON.stringify(result.INSTANCE);
+				document.getElementById("HOST_NAME").innerText = result.INSTANCE.HOST;
+				//document.body.innerText = JSON.stringify(result.INSTANCE);
 
 				//アーカイブ一覧
 				let archive_list_ajax = await fetch("/api/Instance/Archive?ID=" + result.INSTANCE.ID);
 				const archive_list_result = await archive_list_ajax.json();
 				if (archive_list_result.STATUS == false) return;
+
+				document.getElementById("ARCHIVE_COUNT").innerText = archive_list_result.LIST.length;
 				for (let i = 0; i < archive_list_result.LIST.length; i++) {
 					const row = archive_list_result.LIST[i];
-					let el = document.createElement("A");
-					el.href = `?ID=${row.ID}`
-					el.innerText = row.REGIST_DATE;
-					document.body.appendChild(el);
+					const date = new Date(row.REGIST_DATE);
+					let hours = date.getHours();
+					let am_pm = "午前";
+
+					if (hours > 12) {
+						am_pm = "午後";
+						hours = hours - 12;
+					}
+
+					let el = document.createElement("DIV");
+					let a = document.createElement("A");
+					a.href = `?ID=${row.ID}`
+					a.innerText = `${date.getFullYear()}年${date.getMonth()}月${date.getDate()}日 ${am_pm}${hours}時${date.getMinutes()}分${date.getSeconds()}秒`;
+					el.appendChild(a);
+
+					document.getElementById("ARCHIVE_LIST").appendChild(el);
 				}
 			} else if(new URLSearchParams(window.location.search).get("ID") != null) {
 				const archive_id = new URLSearchParams(window.location.search).get("ID");
