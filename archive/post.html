@@ -21,6 +21,44 @@
 				padding: 10px;
 
 				border-radius: 10px;
+
+				overflow: hidden;
+			}
+
+			/*--------------------------------アーカイブ--------------------------------*/
+			.ARCHIVE{
+				background-color: white;
+
+				margin: 10px;
+				padding: 10px;
+
+				border-radius: 10px;
+
+				overflow: hidden;
+			}
+
+			.ARCHIVE > .USER{
+				display: flex;
+			}
+
+			.ARCHIVE > .USER > img{
+				width: 45px;
+				height: 45px;
+			}
+
+			.ARCHIVE > .USER > span > .NAME{
+				font-size: 18px;
+			}
+
+			.ARCHIVE > .USER > span > .UID{
+				font-size: 15px;
+				color: gray;
+			}
+
+			.ARCHIVE > .TEXT{
+				width: 100%;
+
+				border: none;
 			}
 		</STYLE>
 	</HEAD>
@@ -32,7 +70,14 @@
 
 		<!--アーカイブ-->
 		<DIV CLASS="ARCHIVE" ID="ARCHIVE">
-
+			<DIV CLASS="USER">
+				<IMG ID="ICON">
+				<SPAN>
+					<DIV CLASS="NAME" ID="NAME"></DIV>
+					<DIV CLASS="UID" ID="UID">@todo</DIV>
+				</SPAN>
+			</DIV>
+			<IFRAME CLASS="TEXT" ID="TEXT"></IFRAME>
 		</DIV>
 	</BODY>
 
@@ -63,7 +108,22 @@
 				const result = await ajax.json();
 				if (result.STATUS == false) return;
 
-				document.body.innerText = JSON.stringify(result);
+				document.getElementById("ICON").src = result.USER.ICON_ORIGINAL_URL;
+				document.getElementById("NAME").innerText = result.USER.NAME;
+
+				const text_html = `
+					<!DOCTYPE html>
+					<HTML>
+						<HEAD>
+							<TITLE>インスタンス説明</TITLE>
+						</HEAD>
+						<BODY>
+							${result.POST.CONTENT}
+						</BODY>
+					</HTML>
+				`;
+
+				document.getElementById("TEXT").src = `data:text/html;charset=UTF-8;base64,${btoa(unescape(encodeURIComponent(text_html)))}`;
 			}
 		});
 	</SCRIPT>
